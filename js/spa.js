@@ -1,5 +1,7 @@
 'use strict';
 
-export let Spa = function (argument) {
-  // body...
+let spa = function () {
+  return alert('hello');
 };
+
+export {spa};

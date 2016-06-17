@@ -19,7 +19,7 @@ gulp.task('style', function () {
     .pipe( debug())
     .pipe(sourcemaps.init() )
     .pipe( postcss([ require('autoprefixer'), require('precss')]))
-    .pipe(concat('main.css'))
+    .pipe(concat('index.css'))
     .pipe( sourcemaps.write('.') )
     .pipe( gulp.dest('css/') );
 
@@ -28,8 +28,11 @@ gulp.task('style', function () {
 gulp.task('js', function () {
   return gulp.src('js/**/*.js')
     .pipe(sourcemaps.init())
-		.pipe(babel())
-    .pipe(concat('main.js'))
+    .pipe( debug())
+		.pipe(babel({
+      presets: ['es2015']
+    }))
+    .pipe(concat('index.js'))
     .pipe( gulp.dest('js/'));
 })
 

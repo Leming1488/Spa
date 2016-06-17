@@ -1,10 +1,7 @@
-// 'use strict';
-//
-// export let Spa = function (argument) {
-//   // body...
-// };
 'use strict';
 
-export let Spa = function (argument) {
-  // body...
-};
+import { spa } from "./spa";
+
+document.addEventListener('DOMContentLoaded', function () {
+  spa();
+});
