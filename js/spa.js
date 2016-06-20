@@ -1,7 +1,5 @@
 'use strict';
 
-let spa = function () {
-  return alert('hello');
+ export default  function () {
+   alert('hello');
 };
-
-export {spa};

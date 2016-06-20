@@ -30,8 +30,9 @@ gulp.task('js', function () {
     .pipe(sourcemaps.init())
     .pipe( debug())
 		.pipe(babel({
-      presets: ['es2015']
+      // presets: ['es2015']
     }))
+
     .pipe(concat('index.js'))
     .pipe( gulp.dest('js/'));
 })
