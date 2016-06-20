@@ -7,6 +7,10 @@ const sourcemaps = require('gulp-sourcemaps');
 const debug = require('gulp-debug');
 const gulpif = require('gulp-if');
 
+const webpackStream = require('webpack-stream');
+const webpack = webpackStream.webpack;
+const named = require('vinyl-named');
+
 const babel = require('gulp-babel');
 const uglify = require('gulp-uglify');
 const del = require('del');
@@ -26,17 +30,46 @@ gulp.task('style', function () {
 });
 
 gulp.task('js', function () {
-  return gulp.src('js/**/*.js')
-    .pipe(sourcemaps.init())
-    .pipe( debug())
-		.pipe(babel({
-      // presets: ['es2015']
-    }))
+  let options = {
+    entry: "./js/spa",
+    output: {
+      filename: "index.js",
+      library: "SpaShell"
+    },
+    devtool: "source-map",
 
-    .pipe(concat('index.js'))
+    // watch: NODE_ENV == 'development',
+    // watchOptions: {
+    //   aggregateTimeout: 100
+    // },
+    // devtool: NODE_ENV == 'development' ? 'source-map' : null,
+
+    // plugins: [
+    //   new webpack.EnvironmentPlugin('NODE_ENV', 'USER')
+    // ]
+
+    module: {
+      loaders: [
+        {
+          test: /\.js$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'babel',
+          query: {
+            presets: ['es2015'],
+            plugins: ['transform-runtime']
+          }
+        }
+      ]
+    }
+  };
+
+  return gulp.src('js/**/*.js')
+    // .pipe(named())
+    .pipe(webpackStream(options))
     .pipe( gulp.dest('js/'));
 })
 
 gulp.task('watch', function () {
   gulp.watch('postcss/**/*.css', gulp.series('style'));
+  gulp.watch('js/**/*.js', gulp.series('js'));
 });

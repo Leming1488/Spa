@@ -4,7 +4,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 const webpack = require('webpack');
 
 module.exports = {
-  entry: "./js/main",
+  entry: "./js/spa",
   output: {
     filename: "js/index.js",
     library: "spa"
