@@ -83,8 +83,42 @@ var SpaShell =
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var CONFIG_MAP = {
-	  main_html: '<div class="spa-shell-head">\n    <div class="spa-shell-head-logo"></div>\n    <div class="spa-shell-head-acct"></div>\n    <div class="spa-shell-head-search"></div>\n  </div>\n  <div class="spa-shell-main">\n    <div class="spa-shell-main-nav"></div>\n    <div class="spa-shell-main-content"></div>\n  </div>\n  <div class="spa-shell-foot"></div>\n  <div class="spa-shell-chat"></div>\n  <div class="spa-shell-modal"></div>'
+	  main_html: '<div class="spa-shell-head">\n    <div class="spa-shell-head-logo"></div>\n    <div class="spa-shell-head-acct"></div>\n    <div class="spa-shell-head-search"></div>\n  </div>\n  <div class="spa-shell-main">\n    <div class="spa-shell-main-nav"></div>\n    <div class="spa-shell-main-content"></div>\n  </div>\n  <div class="spa-shell-foot"></div>\n  <div class="spa-shell-chat"></div>\n  <div class="spa-shell-modal"></div>',
+	  chat_extend_time: 250,
+	  chat_retract_time: 300,
+	  chat_extend_height: 450,
+	  chat_retract_height: 15,
+	  chat_extend_title: 'Щелкните, чтобы свернуть',
+	  chat_retract_title: 'Щелкните, чтобы раскрыть',
+	  anchor_schema_map: {
+	    chat: { open: true, closed: true }
+	  }
 	};
+	
+	var STATE_MAP = {
+	  is_chat_retracted: true,
+	  anchor_map: {}
+	};
+	
+	function animate(options) {
+	
+	  var start = performance.now();
+	
+	  requestAnimationFrame(function animate(time) {
+	    // timeFraction от 0 до 1
+	    var timeFraction = (time - start) / options.duration;
+	    if (timeFraction > 1) timeFraction = 1;
+	
+	    // текущее состояние анимации
+	    var progress = options.timing(timeFraction);
+	
+	    options.draw(progress);
+	
+	    if (timeFraction < 1) {
+	      requestAnimationFrame(animate);
+	    }
+	  });
+	}
 	
 	var SpaShell = function () {
 	  function SpaShell(container) {
@@ -98,6 +132,72 @@ var SpaShell =
 	    key: 'initModule',
 	    value: function initModule() {
 	      this.container.insertAdjacentHTML('beforeEnd', CONFIG_MAP.main_html);
+	      var ELEMENT_MAP = {
+	        container: document.querySelector('.main-spa'),
+	        chat: document.querySelector('.spa-shell-chat')
+	      };
+	      var toggleChat = function toggleChat(do_extend, callback) {
+	        var ELEMENT_MAP = {
+	          container: document.querySelector('.main-spa'),
+	          chat: document.querySelector('.spa-shell-chat')
+	        };
+	        var px_chat_ht = ELEMENT_MAP.chat.clientHeight;
+	        var is_open = px_chat_ht === CONFIG_MAP.chat_extend_height;
+	        var is_closed = px_chat_ht === CONFIG_MAP.chat_retract_height;
+	        var is_sliding = !is_open && !is_closed;
+	
+	        if (is_sliding) return false;
+	
+	        if (do_extend) {
+	
+	          animate({
+	            duration: CONFIG_MAP.chat_extend_time,
+	            timing: function timing(timeFraction) {
+	              return timeFraction;
+	            },
+	            draw: function draw(progress) {
+	              ELEMENT_MAP.chat.style.height = progress * CONFIG_MAP.chat_extend_height + 'px';
+	            }
+	          });
+	          ELEMENT_MAP.chat.title = '' + CONFIG_MAP.chat_extend_title;
+	          STATE_MAP.is_chat_retracted = false;
+	          return true;
+	        };
+	
+	        animate({
+	          duration: CONFIG_MAP.chat_retract_time,
+	          timing: function timing(timeFraction) {
+	            return timeFraction;
+	          },
+	          draw: function draw(progress) {
+	            ELEMENT_MAP.chat.style.height = progress * CONFIG_MAP.chat_retract_height + 'px';
+	          }
+	        });
+	        ELEMENT_MAP.chat.title = '' + CONFIG_MAP.chat_retract_title;
+	        STATE_MAP.is_chat_retracted = true;
+	        return true;
+	      };
+	
+	      var _onClickChat = function _onClickChat(event) {
+	        if (toggleChat(STATE_MAP.is_chat_retracted)) {
+	          history.replaceState('chat: ' + (STATE_MAP.is_chat_retracted ? 'closed' : 'open'), document.title, window.location.pathname);
+	        };
+	      };
+	      STATE_MAP.is_chat_retracted = true;
+	      ELEMENT_MAP.chat.title = '' + CONFIG_MAP.chat_retract_title;
+	      ELEMENT_MAP.chat.addEventListener('click', _onClickChat);
+	      window.addEventListener('popstate', function (event) {
+	        STATE_MAP.anchor_map = event.state;
+	        if (STATE_MAP.anchor_map) {
+	          switch (expression) {
+	            case expression:
+	
+	              break;
+	            default:
+	
+	          }
+	        }
+	      });
 	    }
 	  }]);
 	  return SpaShell;
