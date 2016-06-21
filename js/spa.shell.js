@@ -14,7 +14,11 @@ const CONFIG_MAP = {
   </div>
   <div class="spa-shell-foot"></div>
   <div class="spa-shell-chat"></div>
-  <div class="spa-shell-modal"></div>`
+  <div class="spa-shell-modal"></div>`,
+  chat_extend_time: 1000,
+  chat_retract_time: 300,
+  chat_extend_height: 450,
+  chat_retract_height: 15
 };
 
 export default class SpaShell {
