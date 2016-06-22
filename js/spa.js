@@ -1,10 +1,17 @@
 'use strict';
 
-import SpaShell  from './spa.shell';
+import spaShell  from './spa.shell';
+
+
+let spa = (function() {
+  let initModule = function( container ) {
+    spaShell.initModule( container);
+  };
+  return { initModule : initModule };
+}());
+
 
 document.addEventListener('DOMContentLoaded', function () {
-  if(document.querySelector('.main-spa')) {
-    let shell = Array.prototype.slice.call(document.querySelectorAll('.main-spa'));
-    shell.forEach(container => new SpaShell(container));
-  };
+  let container = document.querySelector('.main-spa');
+  spa.initModule(container);
 });
