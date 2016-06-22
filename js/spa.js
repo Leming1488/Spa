@@ -2,7 +2,6 @@
 
 import spaShell  from './spa.shell';
 
-
 let spa = (function() {
   let initModule = function( container ) {
     spaShell.initModule( container);

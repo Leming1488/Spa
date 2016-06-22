@@ -1,19 +1,21 @@
 'use strict';
 
+import spaChat  from './spa.chat';
+
 let spaShell = (function() {
   const CONFIG_MAP = {
     main_html: `<div class="spa-shell-head">
-      <div class="spa-shell-head-logo"></div>
-      <div class="spa-shell-head-acct"></div>
-      <div class="spa-shell-head-search"></div>
-    </div>
-    <div class="spa-shell-main">
-      <div class="spa-shell-main-nav"></div>
-      <div class="spa-shell-main-content"></div>
-    </div>
-    <div class="spa-shell-foot"></div>
-    <div class="spa-shell-chat"></div>
-    <div class="spa-shell-modal"></div>`,
+                  <div class="spa-shell-head-logo"></div>
+                  <div class="spa-shell-head-acct"></div>
+                  <div class="spa-shell-head-search"></div>
+                </div>
+                <div class="spa-shell-main">
+                  <div class="spa-shell-main-nav"></div>
+                  <div class="spa-shell-main-content"></div>
+                </div>
+                <div class="spa-shell-foot"></div>
+                <div class="spa-shell-chat"></div>
+                <div class="spa-shell-modal"></div>`,
     chat_extend_time: 250,
     chat_retract_time: 300,
     chat_extend_height: 450,
@@ -28,18 +30,18 @@ let spaShell = (function() {
     }
   };
 
-  let state_map = {
+  let stateMap = {
     container: null,
     is_chat_retracted: true,
     anchor_map: {}
   };
 
-  let  element_map = {};
+  let  elementMap = {};
 
-  let refresh_element_map = function () {
-    let container = state_map.container;
+  let refresh_elementMap = function () {
+    let container = stateMap.container;
 
-    element_map = {
+    elementMap = {
       container: container,
       chat: container.querySelector('.spa-shell-chat')
     };
@@ -61,7 +63,7 @@ let spaShell = (function() {
 
   let toggleChat = (do_extend, callback) => {
 
-    let px_chat_ht = element_map.chat.clientHeight;
+    let px_chat_ht = elementMap.chat.clientHeight;
     let is_open = px_chat_ht === CONFIG_MAP.chat_extend_height;
     let is_closed = px_chat_ht === CONFIG_MAP.chat_retract_height;
     let is_sliding = !is_open && !is_closed;
@@ -72,52 +74,82 @@ let spaShell = (function() {
 
       do_animate({
         duration: CONFIG_MAP.chat_extend_time,
-        timing: function(timeFraction) {
+        timing: timeFraction => {
           return timeFraction;
         },
-        draw: function(progress) {
-          element_map.chat.style.height = progress * CONFIG_MAP.chat_extend_height + 'px';
+        draw: progress => {
+          elementMap.chat.style.height = progress * CONFIG_MAP.chat_extend_height + 'px';
         }
       });
-      element_map.chat.title = `${CONFIG_MAP.chat_extend_title}`;
-      state_map.is_chat_retracted = false;
+      elementMap.chat.title = `${CONFIG_MAP.chat_extend_title}`;
+      stateMap.is_chat_retracted = false;
       return true;
     };
 
     do_animate({
       duration: CONFIG_MAP.chat_retract_time,
-      timing: function(timeFraction) {
+      timing: timeFraction => {
         return timeFraction;
       },
-      draw: function(progress) {
-        element_map.chat.style.height = progress * CONFIG_MAP.chat_retract_height + 'px';
+      draw: progress => {
+        elementMap.chat.style.height = progress * CONFIG_MAP.chat_retract_height + 'px';
       }
     });
-    element_map.chat.title = `${CONFIG_MAP.chat_retract_title}`;
-    state_map.is_chat_retracted = true;
+    elementMap.chat.title = `${CONFIG_MAP.chat_retract_title}`;
+    stateMap.is_chat_retracted = true;
     return true;
   };
 
   let _onClickChat = event => {
-    if (toggleChat(state_map.is_chat_retracted)) {
-      history.replaceState(`chat: ${state_map.is_chat_retracted ? 'closed' : 'open'}`, document.title, window.location.pathname);
+    if (toggleChat(stateMap.is_chat_retracted)) {
+      hangeAnchorPart({
+        chat: ( stateMap.is_chat_retracted ? 'closed' : 'open' );
+      })
+      // location.hash = `chat:${stateMap.is_chat_retracted ? 'closed' : 'open'}`;
     };
   };
 
-  let initModule = function(container) {
-    state_map.container = container;
-    state_map.container.insertAdjacentHTML('beforeEnd', CONFIG_MAP.main_html);
-    refresh_element_map();
-    state_map.is_chat_retracted = true;
-    element_map.chat.title = `${CONFIG_MAP.chat_retract_title}`;
-    element_map.chat.addEventListener('click', _onClickChat);
-    window.addEventListener('popstate', event => {
-      state_map.anchor_map = event.state;
+  let copyAnchorMap = () => {
+    return  Object.assign({}, stateMap.anchor_map);
+  }
+
+  let changeAnchorPart = ( arg_map ) =>  {
+    let anchor_map_revise = copyAnchorMap();
+    let key_name, key_name_dep;
+    let boll_return = true;
+
+    KEYVAL:
+    for ( key_name in arg_map ) {
+      if ( arg_map.hasOwnProperty( key_name ) ) {
+
+        if ( key_name.indexOf( '_' ) === 0 ) { continue KEYVAL; }
+
+        anchor_map_revise[key_name] = arg_map[key_name];
+
+      }
+    }
+  }
+
+  let _onHashcChange = event => {
+    let hash = location.hash;
+  }
+
+  let initModule = container => {
+    stateMap.container = container;
+    stateMap.container.insertAdjacentHTML('beforeEnd', CONFIG_MAP.main_html);
+    refresh_elementMap();
+    stateMap.is_chat_retracted = true;
+    elementMap.chat.title = `${CONFIG_MAP.chat_retract_title}`;
+    elementMap.chat.addEventListener('click', _onClickChat);
+    spaChat.initModule( elementMap.chat );
+
+    window.addEventListener('hashchange', function() {
+      console.log('dsda');
     });
   };
 
   return {initModule : initModule};
 
-}())
+}());
 
 export default spaShell;
