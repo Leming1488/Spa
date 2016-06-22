@@ -59,7 +59,7 @@ let spaShell = (function() {
         requestAnimationFrame(do_animate);
       }
     });
-  }
+  };
 
   let toggleChat = (do_extend, callback) => {
 
@@ -101,22 +101,22 @@ let spaShell = (function() {
   };
 
   let _onClickChat = event => {
-    if (toggleChat(stateMap.is_chat_retracted)) {
-      hangeAnchorPart({
-        chat: ( stateMap.is_chat_retracted ? 'closed' : 'open' );
-      })
+    // if (toggleChat(stateMap.is_chat_retracted)) {
+      changeAnchorPart({
+        chat: ( stateMap.is_chat_retracted ? 'open' : 'closed' )
+      });
       // location.hash = `chat:${stateMap.is_chat_retracted ? 'closed' : 'open'}`;
-    };
+    // };
   };
 
   let copyAnchorMap = () => {
     return  Object.assign({}, stateMap.anchor_map);
-  }
+  };
 
   let changeAnchorPart = ( arg_map ) =>  {
     let anchor_map_revise = copyAnchorMap();
     let key_name, key_name_dep;
-    let boll_return = true;
+    let bool_return = true;
 
     KEYVAL:
     for ( key_name in arg_map ) {
@@ -126,13 +126,56 @@ let spaShell = (function() {
 
         anchor_map_revise[key_name] = arg_map[key_name];
 
+        key_name_dep = '_' + key_name;
+        if ( arg_map[key_name_dep] ) {
+          anchor_map_revise[key_name_dep] = arg_map[key_name_dep];
+        }
+        else {
+          delete anchor_map_revise[key_name_dep];
+          delete anchor_map_revise['_s' + key_name_dep];
+        }
       }
     }
-  }
+    try {
+      location.hash = `${key_name}:${anchor_map_revise[key_name]}`;
+    }
+    catch (error) {
+      location.hash = stateMap.anchor_map;
+      bool_return = false;
+    }
+    return bool_return;
+  };
 
   let _onHashcChange = event => {
-    let hash = location.hash;
-  }
+    let anchor_map_previous = copyAnchorMap();
+    let anchor_map_proposed, _s_chat_previous, _s_chat_proposed, s_chat_proposed;
+    try { anchor_map_proposed = location.hash }
+    catch ( error ) {
+      location.hash = anchor_map_previous;
+      return false;
+    }
+    stateMap.anchor_map = anchor_map_proposed;
+
+    _s_chat_previous = anchor_map_previous;
+    _s_chat_proposed = anchor_map_proposed;
+
+    if ( ! anchor_map_previous || _s_chat_previous !== _s_chat_proposed ) {
+      s_chat_proposed = anchor_map_proposed;
+      switch ( s_chat_proposed) {
+        case '#chat:open':
+          toggleChat( true );
+          break;
+          case '#chat:closed':
+            toggleChat( false );
+            break;
+        default:
+          toggleChat( false );
+          location.hash = anchor_map_proposed;
+      };
+    }
+
+    return false;
+  };
 
   let initModule = container => {
     stateMap.container = container;
@@ -143,8 +186,9 @@ let spaShell = (function() {
     elementMap.chat.addEventListener('click', _onClickChat);
     spaChat.initModule( elementMap.chat );
 
-    window.addEventListener('hashchange', function() {
-      console.log('dsda');
+    window.addEventListener('hashchange', function (e) {
+      _onHashcChange(e);
+
     });
   };
 
