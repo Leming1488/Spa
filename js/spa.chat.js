@@ -2,8 +2,19 @@
 
 let spaChat = (function() {
   const CONFIG_MAP = {
-    main_html: `<div style="padding: 1em; color:#fff;">
-                  Say Hello
+    main_html: `<div class="spa-chat">
+                  <div class="spa-chat-head">
+                    <div class="spa-chat-head-toggle">+</div>
+                    <div class="spa-chat-head-title">Chat</div>
+                  </div>
+                  <div class="spa-chat-closer">x</div>
+                  <div class="spa-chat-main">
+                    <div class="spa-chat-main-nav"></div>
+                    <div class="spa-chat-main-content"></div>
+                  </div>
+                  <div class="spa-chat-foot"></div>
+                  <div class="spa-chat-chat"></div>
+                  <div class="spa-chat-modal"></div>
                 </div>`,
     settable_map: {}
   };
